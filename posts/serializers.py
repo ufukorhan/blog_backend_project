@@ -1,10 +1,12 @@
 from . models import Post
 from rest_framework import serializers
 from categories.models import Category
+from comments.serializers import CommentSerializer
 
 
 class PostSerializer(serializers.ModelSerializer):
     categories = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), many=True)
+    comments = CommentSerializer(many=True, read_only=True)
     
     class Meta:
         model = Post
@@ -13,5 +15,14 @@ class PostSerializer(serializers.ModelSerializer):
             'title',
             'body',
             'owner',
-            'categories'
+            'categories',
+            'comments'
         )
+        read_only_fields = [
+            'id',
+            'comments',
+            'owner',
+            'created_at',
+            'updated_at'
+        ]
+        

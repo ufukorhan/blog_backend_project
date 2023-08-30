@@ -2,7 +2,6 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
 from posts.models import Post
-from posts.serializers import PostSerializer
 from categories.models import Category
 from model_bakery import baker
 
@@ -134,16 +133,16 @@ class PostViewSetTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Post.objects.filter(title="Java Compile Time").exists())
 
-    def test_create_a_post_without_any_owner(self):
+    def test_create_a_post_with_invalid_credentials(self):
         header = self._get_jwt_token(username="fake_user", password="dummy_password321")
-        post = PostSerializer(
-            baker.prepare(
-            Post,
-            title='Test Post', 
-            body='This is a test post.', 
-        )).data
 
-        response = self.client.post(self.BASE_URL, headers=header, data=post, format="json")
+        post_data = {
+            "title": "Test Title",
+            "body": "This is a test post.",
+            "categories": [self.category1.pk]
+        }
+
+        response = self.client.post(self.BASE_URL, headers=header, data=post_data, format="json")
         self.assertEqual(
             response.json().get('detail'),
             "Given token not valid for any token type"
@@ -151,16 +150,14 @@ class PostViewSetTestCase(APITestCase):
 
     def test_create_a_post_with_valid_credentials(self):
         header = self._get_jwt_token(username="normal_user", password="dummy_password321")
-        prepared_data = PostSerializer(
-            baker.prepare(
-            Post,
-            title="Test Title",
-            body="This is a test post.",
-            owner=self.normal_user,
-            categories=[self.category1],
-        )).data
+
+        post_data = {
+            "title": "Test Title",
+            "body": "This is a test post.",
+            "categories": [self.category1.pk]
+        }
   
-        response = self.client.post(self.BASE_URL, data=prepared_data, headers=header, format="json")
+        response = self.client.post(self.BASE_URL, data=post_data, headers=header)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.json().get('title'), 'Test Title')
         self.assertEqual(response.json().get('body'), 'This is a test post.')
