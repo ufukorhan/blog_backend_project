@@ -1,22 +1,17 @@
 from . models import Post
 from rest_framework import serializers
+from categories.models import Category
 
 
 class PostSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
-    comments = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-
+    categories = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), many=True)
+    
     class Meta:
         model = Post
-        fields = [
+        fields = (
             'id',
             'title',
             'body',
             'owner',
-            'comments',
-            'categories',
-            'created_at',
-            'updated_at'
-        ]
-
-
+            'categories'
+        )
