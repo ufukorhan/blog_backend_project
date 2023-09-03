@@ -13,5 +13,8 @@ class UserSerializer(serializers.ModelSerializer):
             'username', 
             'posts', 
             'comments',
-            'categories'
+            'categories',
+            'password'
         ]
+        extra_kwargs = {'password': {'write_only': True}}
+

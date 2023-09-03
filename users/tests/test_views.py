@@ -96,7 +96,7 @@ class UserViewSetTestCase(APITestCase):
         data = {
             "username": "updated_username"
         }
-        response = self.client.put(
+        response = self.client.patch(
             f"{self.BASE_URL}{self.normal_user.pk}/",
             data= data, 
             headers=header,
